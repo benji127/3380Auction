@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Art</title>
+</head>
+<body>
+    <h1>Edit Art</h1>
+    <form id="editArtForm">
+        <label for="artName">Art Name:</label><br>
+        <input type="text" id="artName" name="artName"><br>
+        <label for="serial">Serial:</label><br>
+        <input type="number" id="serial" name="serial"><br>
+        <label for="src">Source:</label><br>
+        <input type="text" id="src" name="src"><br>
+        <label for="alt">Alt:</label><br>
+        <input type="text" id="alt" name="alt"><br>
+        <label for="user">User:</label><br>
+        <input type="text" id="user" name="user"><br>
+        <label for="bid">Bid:</label><br>
+        <input type="number" id="bid" name="bid"><br><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+<script>
+    // Function to fetch art data by ID
+async function fetchArtById(id) {
+    try {
+        const response = await fetch(`/api/art/${id}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching art:', error);
+        return null;
+    }
+}
+
+// Function to populate form with retrieved art data
+async function populateEditForm(id) {
+    const artData = await fetchArtById(id);
+    if (artData) {
+        document.getElementById('artName').value = artData.artName;
+        document.getElementById('serial').value = artData.serial;
+        document.getElementById('src').value = artData.src;
+        document.getElementById('alt').value = artData.alt;
+        document.getElementById('user').value = artData.bids[0].user; // Assuming there's only one bid
+        document.getElementById('bid').value = artData.bids[0].bid;
+    } else {
+        alert('Error: Art data not found.');
+    }
+}
+
+// Get the art ID from the URL (assuming the URL is in the format /art/:id/update)
+const artId = window.location.pathname.split('/').pop();
+populateEditForm(artId);
+
+// Event listener for form submission
+document.getElementById('editArtForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Prepare art data
+    const artData = {
+        artName: e.target.artName.value,
+        serial: e.target.serial.value,
+        src: e.target.src.value,
+        alt: e.target.alt.value,
+        bids: [{
+            user: e.target.user.value,
+            bid: parseInt(e.target.bid.value)
+        }]
+    };
+
+    try {
+        const response = await fetch(`/api/art/${artId}/update`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(artData)
+        });
+        const updatedArt = await response.json();
+        console.log(updatedArt);
+        alert('Art updated successfully!');
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error updating art.');
+    }
+});
+
+</script>
+</html>

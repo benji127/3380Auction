@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Art</title>
+</head>
+<body>
+    <h1>Add Art</h1>
+    <form id="artForm">
+        <label for="artName">Art Name:</label><br>
+        <input type="text" id="artName" name="artName"><br>
+        <label for="serial">Serial:</label><br>
+        <input type="number" id="serial" name="serial"><br>
+        <label for="src">Source:</label><br>
+        <input type="text" id="src" name="src"><br>
+        <label for="alt">Alt:</label><br>
+        <input type="text" id="alt" name="alt"><br>
+        <label for="user">User:</label><br>
+        <input type="text" id="user" name="user"><br>
+        <label for="bid">Bid:</label><br>
+        <input type="number" id="bid" name="bid"><br><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+<script>
+    document.getElementById('artForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Prepare art data
+        const artData = {
+            artName: e.target.artName.value,
+            serial: e.target.serial.value,
+            src: e.target.src.value,
+            alt: e.target.alt.value,
+            bids: [{
+                user: e.target.user.value,
+                bid: parseInt(e.target.bid.value)
+            }]
+        };
+
+        try {
+            const response = await fetch('/api/addArt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(artData)
+            });
+            const data = await response.json();
+            console.log(data);
+            alert('Art added successfully!');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error adding art.');
+        }
+    });
+</script>
+</html>
